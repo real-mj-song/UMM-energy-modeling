@@ -41,13 +41,8 @@ col_template = [
 
 
 def main():
-    parser = SafeConfigParser()
-    parser.read('config.ini')
-    url = parser.get('DEFAULT', 'url')
-
-    response = requests.get(url + '/api/query?start=3d-ago&m=sum:1h-avg:rate:energy{source=GDSP1|GDSP2|GDSP3}')
-    raw_data = response.json()
-    response.close()
+    # raw json data queried from the database
+    raw_data = get_raw_data()
 
     pure_data = data_decoder(raw_data)
 
@@ -60,6 +55,21 @@ def main():
     # create/rewrite `data.json` file that contains the `data` dict
     with open('data.json', 'w') as outfile:
         json.dump(data, outfile)
+
+
+def get_raw_data():
+    """
+    Returns raw data which is queried from the database
+    """
+    parser = SafeConfigParser()
+    parser.read('config.ini')
+    url = parser.get('DEFAULT', 'url')
+
+    response = requests.get(url + '/api/query?start=3d-ago&m=sum:1h-avg:rate:energy{source=GDSP1|GDSP2|GDSP3}')
+    raw_data = response.json()
+    response.close()
+
+    return raw_data
 
 
 def data_decoder(qlist):
