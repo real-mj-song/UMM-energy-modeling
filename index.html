@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type='text/javascript'>
+
+      google.charts.load('current', {'packages':['annotationchart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = $.ajax({
+          url: "http://facultypages.morris.umn.edu/~mcphee/EnergyProject/data.json",
+          dataType: "json",
+          async: false,
+          xhrFields: {
+            // The 'xhrFields' property sets additional fields on the XMLHttpRequest.
+            // This can be used to set the 'withCredentials' property.
+            // Set the value to 'true' if you'd like to pass cookies to the server.
+            // If this is enabled, your server must respond with the header
+            // 'Access-Control-Allow-Credentials: true'.
+            withCredentials: false
+          }
+          }).responseText;
+
+        // convert from Epoch timestamps to Date objects
+        convertToDate(data["rows"]);
+
+        var modifiedData = new google.visualization.DataTable(data);
+
+        var chart = new google.visualization.AnnotationChart(document.getElementById('chart_div'));
+
+        var options = {
+          displayAnnotations: true
+        };
+
+        chart.draw(modifiedData, options);
+      }
+
+      /**
+       * Takes the rows array and converts each label into a Date object
+       * @param {Object} rows - an array of objects(rows)
+       */
+      function convertToDate(rows) {
+        for (i = 0; i < rows.length; i++) {
+          current = rows[i]["c"][0]["v"];
+          rows[i]["c"][0]["v"] = new Date(current);
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id='chart_div' style='width: 900px; height: 500px;'></div>
+  </body>
+</html>
